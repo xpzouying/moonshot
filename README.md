@@ -2,7 +2,9 @@
 Go sdk for moonshot
 
 
-## 正确请求
+## Chat
+
+Result of chat completions.
 
 ```json
 {
@@ -28,7 +30,8 @@ Go sdk for moonshot
 }
 ```
 
-## 请求错误
+
+Error chat completions.
 
 ```json
 {
@@ -40,5 +43,89 @@ Go sdk for moonshot
     "status": false,
     "ua": "Go-http-client/2.0",
     "url": "/v1/chat/completions"
+}
+```
+
+
+## List Models
+
+Result of list models.
+
+```json
+{
+    "data": [
+        {
+            "created": 1709149158,
+            "id": "moonshot-v1-8k",
+            "object": "model",
+            "owned_by": "moonshot",
+            "permission": [
+                {
+                    "created": 0,
+                    "id": "",
+                    "object": "",
+                    "allow_create_engine": false,
+                    "allow_sampling": false,
+                    "allow_logprobs": false,
+                    "allow_search_indices": false,
+                    "allow_view": false,
+                    "allow_fine_tuning": false,
+                    "organization": "public",
+                    "group": "public",
+                    "is_blocking": false
+                }
+            ],
+            "root": "",
+            "parent": ""
+        },
+        {
+            "created": 1709149158,
+            "id": "moonshot-v1-32k",
+            "object": "model",
+            "owned_by": "moonshot",
+            "permission": [
+                {
+                    "created": 0,
+                    "id": "",
+                    "object": "",
+                    "allow_create_engine": false,
+                    "allow_sampling": false,
+                    "allow_logprobs": false,
+                    "allow_search_indices": false,
+                    "allow_view": false,
+                    "allow_fine_tuning": false,
+                    "organization": "public",
+                    "group": "public",
+                    "is_blocking": false
+                }
+            ],
+            "root": "",
+            "parent": ""
+        },
+        {
+            "created": 1709149158,
+            "id": "moonshot-v1-128k",
+            "object": "model",
+            "owned_by": "moonshot",
+            "permission": [
+                {
+                    "created": 0,
+                    "id": "",
+                    "object": "",
+                    "allow_create_engine": false,
+                    "allow_sampling": false,
+                    "allow_logprobs": false,
+                    "allow_search_indices": false,
+                    "allow_view": false,
+                    "allow_fine_tuning": false,
+                    "organization": "public",
+                    "group": "public",
+                    "is_blocking": false
+                }
+            ],
+            "root": "",
+            "parent": ""
+        }
+    ]
 }
 ```

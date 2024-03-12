@@ -17,19 +17,29 @@ func TestFiles(t *testing.T) {
 
 	client := New(token)
 
+	// --- Upload File ---
 	fileDetail, err := client.UploadFile(context.Background(), "./tests/hello.txt")
 	assert.NoError(t, err)
 	assert.NotNil(t, fileDetail)
 	assert.NotEmpty(t, fileDetail.ID)
 	t.Logf("upload file result: %v", fileDetail)
 
+	// --- List Files ---
 	fileDetailList, err := client.ListFiles(context.Background())
 	assert.NoError(t, err)
 	assert.True(t, fileInList(fileDetail.ID, fileDetailList))
 	t.Logf("list files result: %v", fileDetailList)
 
+	// --- Get Content ---
+	fileContent, err := client.GetFileContent(context.Background(), fileDetail.ID)
+	assert.NoError(t, err)
+	assert.Equal(t, "hello.txt", fileContent.Filename)
+	assert.NotEmpty(t, fileContent.Content)
+
+	// --- Delete File ---
 	assert.NoError(t, client.DeleteFile(context.Background(), fileDetail.ID))
 
+	// --- List Files Again And Check ---
 	fileDetailList, err = client.ListFiles(context.Background())
 	assert.NoError(t, err)
 	assert.False(t, fileInList(fileDetail.ID, fileDetailList))

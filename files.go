@@ -166,3 +166,45 @@ func (c *Client) newDeleteFilesRequest(ctx context.Context, fid string) (*http.R
 
 	return httpReq, nil
 }
+
+type FileContent struct {
+	Content  string `json:"content"`
+	FileType string `json:"file_type"`
+	Filename string `json:"filename"`
+	Title    string `json:"title"`
+	Type     string `json:"type"`
+}
+
+func (c *Client) GetFileContent(ctx context.Context, fid string) (*FileContent, error) {
+	req, err := c.newGetFileContentRequest(ctx, fid)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var result FileContent
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+func (c *Client) newGetFileContentRequest(ctx context.Context, fid string) (*http.Request, error) {
+
+	targetURL := moonshotBaseURL + apiFiles + "/" + fid + "/content"
+
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, targetURL, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	httpReq.Header.Set("Authorization", "Bearer "+c.apiKey)
+
+	return httpReq, nil
+}

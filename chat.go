@@ -7,6 +7,10 @@ import (
 	"net/http"
 )
 
+const (
+	apiV1ChatCompletions = "/v1/chat/completions"
+)
+
 type Message struct {
 	Role    string `json:"role,omitempty"`
 	Content string `json:"content,omitempty"`

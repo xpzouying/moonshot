@@ -6,6 +6,10 @@ import (
 	"net/http"
 )
 
+const (
+	apiListModels = "/v1/models"
+)
+
 type ModelDetail struct {
 	Created int64  `json:"created,omitempty"`
 	ModelID string `json:"id,omitempty"`

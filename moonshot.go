@@ -4,6 +4,14 @@ import (
 	"net/http"
 )
 
+const (
+	moonshotBaseURL = "https://api.moonshot.cn"
+
+	ModelV18K  = "moonshot-v1-8k"
+	ModelV32K  = "moonshot-v1-32k"
+	ModelV128K = "moonshot-v1-128k"
+)
+
 type Client struct {
 	client *http.Client
 

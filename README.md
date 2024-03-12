@@ -129,3 +129,44 @@ Result of list models.
     ]
 }
 ```
+
+
+## Files
+
+
+### Upload file
+
+
+```json
+{
+    "id": "cnkjc78fkflfvk4mg4qg",
+    "object": "file",
+    "bytes": 21,
+    "created_at": 1709782557,
+    "filename": "hello.txt",
+    "purpose": "file-extract",
+    "status": "ok",
+    "status_details": ""
+}
+```
+
+
+### List files
+
+
+```json
+{
+    "data": [
+        {
+            "id": "cnkjc78fkflfvk4mg4qg",
+            "object": "file",
+            "bytes": 21,
+            "created_at": 1709782557,
+            "filename": "hello.txt",
+            "purpose": "file-extract",
+            "status": "ok",
+            "status_details": ""
+        }
+    ]
+}
+```

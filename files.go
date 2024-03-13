@@ -17,6 +17,11 @@ const (
 	apiFiles = "/v1/files"
 )
 
+type ErrorResponse struct {
+	Message string `json:"message"`
+	Type    string `json:"type"`
+}
+
 type FileDetail struct {
 	ID           string `json:"id,omitempty"`
 	Object       string `json:"object,omitempty"`
@@ -26,6 +31,53 @@ type FileDetail struct {
 	Purpose      string `json:"purpose,omitempty"`
 	Status       string `json:"status,omitempty"`
 	StatusDetail string `json:"status_details,omitempty"`
+
+	Error ErrorResponse `json:"error,omitempty"`
+}
+
+func (c *Client) GetFileInfo(ctx context.Context, fid string) (*FileDetail, error) {
+
+	req, err := c.newGetFileRequest(ctx, fid)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var result FileDetail
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		if errMsg := result.Error.Message; errMsg != "" {
+			return nil, errors.New(errMsg)
+		}
+
+		return nil, errors.Errorf("get file request status code: %v", resp.StatusCode)
+	}
+
+	return &result, nil
+}
+
+func (c *Client) newGetFileRequest(ctx context.Context, fid string) (*http.Request, error) {
+
+	targetURL := moonshotBaseURL + apiFiles + "/" + fid
+
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, targetURL, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	httpReq.Header.Set("Authorization", "Bearer "+c.apiKey)
+
+	httpReq = httpReq.WithContext(ctx)
+
+	return httpReq, nil
 }
 
 func (c *Client) ListFiles(ctx context.Context) ([]FileDetail, error) {
@@ -46,7 +98,7 @@ func (c *Client) ListFiles(ctx context.Context) ([]FileDetail, error) {
 }
 
 func (c *Client) sendListFiles(ctx context.Context) ([]byte, error) {
-	httpReq, err := c.newListFilesRequesst(ctx)
+	httpReq, err := c.newListFilesRequest(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +112,7 @@ func (c *Client) sendListFiles(ctx context.Context) ([]byte, error) {
 	return io.ReadAll(resp.Body)
 }
 
-func (c *Client) newListFilesRequesst(ctx context.Context) (*http.Request, error) {
+func (c *Client) newListFilesRequest(ctx context.Context) (*http.Request, error) {
 
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, moonshotBaseURL+apiFiles, nil)
 	if err != nil {

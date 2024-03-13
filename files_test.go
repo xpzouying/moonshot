@@ -30,6 +30,12 @@ func TestFiles(t *testing.T) {
 	assert.True(t, fileInList(fileDetail.ID, fileDetailList))
 	t.Logf("list files result: %v", fileDetailList)
 
+	// --- Get File Info ---
+	fileDetail, err = client.GetFileInfo(context.Background(), fileDetail.ID)
+	assert.NoError(t, err)
+	assert.NotNil(t, fileDetail)
+	assert.NotEmpty(t, fileDetail.ID)
+
 	// --- Get Content ---
 	fileContent, err := client.GetFileContent(context.Background(), fileDetail.ID)
 	assert.NoError(t, err)
@@ -52,4 +58,16 @@ func fileInList(fid string, list []FileDetail) bool {
 		}
 	}
 	return false
+}
+
+func TestGetNotExistsFile(t *testing.T) {
+	token := os.Getenv("MOONSHOT_API_KEY")
+	if token == "" {
+		t.Skip("MOONSHOT_API_KEY not set")
+	}
+
+	client := New(token)
+
+	_, err := client.GetFileInfo(context.Background(), "not-exists")
+	assert.Error(t, err)
 }

@@ -3,7 +3,6 @@ package moonshot
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -31,8 +30,6 @@ type FileDetail struct {
 	Purpose      string `json:"purpose,omitempty"`
 	Status       string `json:"status,omitempty"`
 	StatusDetail string `json:"status_details,omitempty"`
-
-	Error ErrorResponse `json:"error,omitempty"`
 }
 
 func (c *Client) GetFileInfo(ctx context.Context, fid string) (*FileDetail, error) {
@@ -49,16 +46,9 @@ func (c *Client) GetFileInfo(ctx context.Context, fid string) (*FileDetail, erro
 	defer resp.Body.Close()
 
 	var result FileDetail
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+
+	if err := decodeResponse(resp.Body, &result); err != nil {
 		return nil, err
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		if errMsg := result.Error.Message; errMsg != "" {
-			return nil, errors.New(errMsg)
-		}
-
-		return nil, errors.Errorf("get file request status code: %v", resp.StatusCode)
 	}
 
 	return &result, nil
@@ -82,22 +72,6 @@ func (c *Client) newGetFileRequest(ctx context.Context, fid string) (*http.Reque
 
 func (c *Client) ListFiles(ctx context.Context) ([]FileDetail, error) {
 
-	data, err := c.sendListFiles(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	var result struct {
-		Data []FileDetail `json:"data"`
-	}
-	if err := json.Unmarshal(data, &result); err != nil {
-		return nil, err
-	}
-
-	return result.Data, nil
-}
-
-func (c *Client) sendListFiles(ctx context.Context) ([]byte, error) {
 	httpReq, err := c.newListFilesRequest(ctx)
 	if err != nil {
 		return nil, err
@@ -109,7 +83,15 @@ func (c *Client) sendListFiles(ctx context.Context) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 
-	return io.ReadAll(resp.Body)
+	var result struct {
+		Object string       `json:"object"` // list
+		Data   []FileDetail `json:"data"`
+	}
+
+	if err := decodeResponse(resp.Body, &result); err != nil {
+		return nil, err
+	}
+	return result.Data, nil
 }
 
 func (c *Client) newListFilesRequest(ctx context.Context) (*http.Request, error) {
@@ -127,19 +109,6 @@ func (c *Client) newListFilesRequest(ctx context.Context) (*http.Request, error)
 
 func (c *Client) UploadFile(ctx context.Context, path string) (*FileDetail, error) {
 
-	data, err := c.sendUploadFileRequest(ctx, path)
-	if err != nil {
-		return nil, err
-	}
-
-	var result FileDetail
-	if err := json.Unmarshal(data, &result); err != nil {
-		return nil, err
-	}
-	return &result, nil
-}
-
-func (c *Client) sendUploadFileRequest(ctx context.Context, path string) ([]byte, error) {
 	req, err := c.newUploadFileRequest(ctx, path)
 	if err != nil {
 		return nil, err
@@ -151,7 +120,11 @@ func (c *Client) sendUploadFileRequest(ctx context.Context, path string) ([]byte
 	}
 	defer resp.Body.Close()
 
-	return io.ReadAll(resp.Body)
+	var result FileDetail
+	if err := decodeResponse(resp.Body, &result); err != nil {
+		return nil, err
+	}
+	return &result, nil
 }
 
 func (c *Client) newUploadFileRequest(ctx context.Context, path string) (*http.Request, error) {
@@ -240,7 +213,7 @@ func (c *Client) GetFileContent(ctx context.Context, fid string) (*FileContent, 
 	defer resp.Body.Close()
 
 	var result FileContent
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err := decodeResponse(resp.Body, &result); err != nil {
 		return nil, err
 	}
 

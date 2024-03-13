@@ -57,7 +57,7 @@ func (c *Client) CreateChatCompletions(ctx context.Context, req *RequestCompleti
 	defer resp.Body.Close()
 
 	var result ResponseCompletionChat
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err := decodeResponse(resp.Body, &result); err != nil {
 		return nil, err
 	}
 

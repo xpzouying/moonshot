@@ -21,7 +21,7 @@ func decodeResponse(r io.Reader, v interface{}) error {
 		} `json:"error"`
 	}
 	if err := json.Unmarshal(raw, &errResp); err == nil && errResp.Error.Message != "" {
-		return errors.New(errResp.Error.Message)
+		return errors.Errorf("%s: %s", errResp.Error.Type, errResp.Error.Message)
 	}
 
 	if err := json.Unmarshal(raw, v); err != nil {
